@@ -1,0 +1,12 @@
+[Station_Configuration]
+Site = drv
+Station_latitude = -66.6666700
+Station_longitude = 140.0000000
+
+[Proxies_list]
+# Proxies are used to have access to tohe internet by a custom path.
+# If you don't use proxy, let the variable empty, but don't delete it. For exemple :
+# proxies = 
+
+proxies =   http,http://192.168.61.7:3129
+            https,http://192.168.61.7:3129
