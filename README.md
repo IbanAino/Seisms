@@ -1,4 +1,4 @@
-# Outil de saisie des mesures absolues
+# Outil de visualistaion des séismes journaliers mondiaux
 
 **Auteur :** Iban FERNANDEZ
 
