@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 import math
 from math import sin, cos, sqrt, atan2, radians
+import time
 
 
 ##
@@ -32,6 +33,8 @@ class View(tk.Frame):
         self.frame_Down = Frame_Down(station_Latitude = self.station_Latitude, station_Longitude = self.station_Longitude)
         self.frame_Down.place(x = 20, y = 80)
 
+        self.button_last_click_date = 0
+
         # set the controller
         self.controller = None
 
@@ -48,16 +51,18 @@ class View(tk.Frame):
         Handle button click event
         :return:
         """
-        day = self.frame_Up.date_Day_Entry.get()
-        month = self.frame_Up.date_Month_Entry.get()
-        year = self.frame_Up.date_Year_Entry.get()
+        # Security loop to prevent multiples click to launch multiples requests
+        current_time = time.time()
 
-        self.set_cursor_busy()
-
-        self.sismic_Data = self.controller.load_Sismic_Data(day = day, month = month, year = year)
-        self.frame_Down.display_Sismic_Data(self.sismic_Data)
-
-        self.reset_cursor()
+        if self.button_last_click_date < current_time - 1:
+            self.set_cursor_busy()
+            day = self.frame_Up.date_Day_Entry.get()
+            month = self.frame_Up.date_Month_Entry.get()
+            year = self.frame_Up.date_Year_Entry.get()
+            self.sismic_Data = self.controller.load_Sismic_Data(day = day, month = month, year = year)
+            self.frame_Down.display_Sismic_Data(self.sismic_Data)
+            self.button_last_click_date = time.time()
+            self.reset_cursor()
 
     def display_Sismic_Data(self, sismic_Data):
         self.frame_Down.display_Sismic_Data(sismic_Data)
