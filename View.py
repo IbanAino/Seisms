@@ -4,7 +4,7 @@ import tkinter as tk
 from datetime import datetime
 import re
 import math
-from math import sin, cos, sqrt, atan2, radians
+from math import sin, cos, sqrt, asin, radians
 import time
 
 
@@ -24,13 +24,11 @@ class View(tk.Frame):
         parent.configure(bg = 'Light Grey')
 
         self.sismic_Data = []
-        self.station_Latitude = '0'
-        self.station_Longitude = '0'
 
         self.frame_Up = Frame_Up(self.button_clicked)
         self.frame_Up.place(x = 20, y = 20)
 
-        self.frame_Down = Frame_Down(station_Latitude = self.station_Latitude, station_Longitude = self.station_Longitude)
+        self.frame_Down = Frame_Down()
         self.frame_Down.place(x = 20, y = 80)
 
         self.button_last_click_date = 0
@@ -76,6 +74,10 @@ class View(tk.Frame):
     def reset_cursor(self):
         self.frame_Up.config(cursor='')
         self.frame_Down.config(cursor='')
+
+    def set_Station_Coordonates(self, station_Latitude, station_Longitude):
+        self.frame_Down.station_Latitude = station_Latitude
+        self.frame_Down.station_Longitude = station_Longitude
 
 
 ##
@@ -208,13 +210,13 @@ class Frame_Up(tk.Frame):
 # 
 ##
 class Frame_Down(tk.Frame):
-    def __init__(self, station_Latitude, station_Longitude):
+    def __init__(self):
         super(Frame_Down, self).__init__()
 
         self.configure(bg = 'Light Grey')
 
-        self.station_Latitude = station_Latitude
-        self.station_Longitude = station_Longitude
+        self.station_Latitude = '1'
+        self.station_Longitude = '1'
 
         self.tree=ttk.Treeview(self, column=("c1", "c2", "c3", "c4", "c5"), show='headings', height=38)
         self.tree.column("# 1",anchor='center', stretch='no', width=110)
@@ -243,28 +245,38 @@ class Frame_Down(tk.Frame):
                 latitude = row[1]
                 longitude = row[2]
                 distance_from_station_to_seism = 0
-                distance_from_station_to_seism = self.distance_to_Station(longitude = longitude, latitude = latitude)
+                distance_from_station_to_seism = self.distance_to_Station(longitude = longitude, latitude = latitude, station_Latitude = self.station_Latitude, station_Longitude = self.station_Longitude)
 
                 self.tree.insert('', 'end',text="1",values=(row[0][0:10],row[0][11:19],row[4],row[13],str(distance_from_station_to_seism)[0:8]))
 
-    def distance_to_Station(self, longitude, latitude):
+    def distance_to_Station(self, longitude, latitude, station_Latitude, station_Longitude):
         """
         Cette fonction calcule la distance entre deux paires de coordonnées géographiques.
         """
-        lon1 = float(self.station_Longitude)
-        lat1 = float(self.station_Latitude)
+        lon1 = float(station_Longitude)
+        lat1 = float(station_Latitude)
         lon2 = float(longitude)
         lat2 = float(latitude)
 
-        radius = 6371  # km
+        #radius = 6371  # km
+        #
+        #dlat = math.radians(lat2 - lat1)
+        #dlon = math.radians(lon2 - lon1)
+        #a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
+        #    math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+        #    math.sin(dlon / 2) * math.sin(dlon / 2))
+        #c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        #d = radius * c
 
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
-            math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
-            math.sin(dlon / 2) * math.sin(dlon / 2))
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        d = radius * c
+        # convert decimal degrees to radian
+        lon1, lat1, lon2, lat2, = map(radians, [lon1, lat1, lon2, lat2])
 
-        #print(d)
+        # formula
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        r = 6371
+        d = c * r
+
         return(d)

@@ -23,7 +23,8 @@ class Controller:
         """
         self.model.load_config_file()
 
-        self.view.station_Latitude = self.model.station_Latitude
-        self.view.station_Longitude = self.model.station_Longitude
+        lat = self.model.station_Latitude
+        lon = self.model.station_Longitude
+        self.view.set_Station_Coordonates(station_Latitude = lat, station_Longitude = lon)
 
         self.view.frame_Down.set_Station_Name(self.model.station_Name)
