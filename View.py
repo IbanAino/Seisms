@@ -1,4 +1,4 @@
-#from tkinter import Tk, W, E, messagebox
+from tkinter import messagebox
 from tkinter import ttk
 import tkinter as tk
 from datetime import datetime
@@ -57,10 +57,18 @@ class View(tk.Frame):
             day = self.frame_Up.date_Day_Entry.get()
             month = self.frame_Up.date_Month_Entry.get()
             year = self.frame_Up.date_Year_Entry.get()
-            self.sismic_Data = self.controller.load_Sismic_Data(day = day, month = month, year = year)
-            self.frame_Down.display_Sismic_Data(self.sismic_Data)
-            self.button_last_click_date = time.time()
-            self.reset_cursor()
+
+            if 0 < int(day) < 32 and 0 < int(month) < 13 and 1000 < int(year) < 3000 :
+
+                self.sismic_Data = self.controller.load_Sismic_Data(day = day, month = month, year = year)
+                self.frame_Down.display_Sismic_Data(self.sismic_Data)
+                self.button_last_click_date = time.time()
+                self.reset_cursor()
+
+            else:
+                print("Error user input")
+                self.show_Error_Message("Erreur dans la date")
+                self.reset_cursor()
 
     def display_Sismic_Data(self, sismic_Data):
         self.frame_Down.display_Sismic_Data(sismic_Data)
@@ -78,6 +86,14 @@ class View(tk.Frame):
     def set_Station_Coordonates(self, station_Latitude, station_Longitude):
         self.frame_Down.station_Latitude = station_Latitude
         self.frame_Down.station_Longitude = station_Longitude
+    
+    def show_Error_Message(self, message):
+        """
+        Show an error message
+        :param message:
+        :return:
+        """
+        messagebox.showerror('erreur', message)
 
 
 ##
@@ -113,9 +129,9 @@ class Frame_Up(tk.Frame):
         self.date_Month = tk.StringVar(value = self.date_Month )
         self.date_Year = tk.StringVar(value = self.date_Year )
 
-        self.date_Day_Entry = tk.Entry(self, validate="focusout", textvariable = self.date_Day, bg = 'white', fg = 'black', width = 2)
-        self.date_Month_Entry = tk.Entry(self, validate="focusout", textvariable = self.date_Month, bg = 'white', fg = 'black', width = 2)
-        self.date_Year_Entry = tk.Entry(self, validate="focusout", textvariable = self.date_Year, bg = 'white', fg = 'black', width = 4)
+        self.date_Day_Entry = tk.Entry(self, validate="all", textvariable = self.date_Day, bg = 'white', fg = 'black', width = 2)
+        self.date_Month_Entry = tk.Entry(self, validate="all", textvariable = self.date_Month, bg = 'white', fg = 'black', width = 2)
+        self.date_Year_Entry = tk.Entry(self, validate="all", textvariable = self.date_Year, bg = 'white', fg = 'black', width = 4)
         self.date_Day_Entry.grid(row = 1, column = 2)
         self.date_Month_Entry.grid(row = 1, column = 4)
         self.date_Year_Entry.grid(row = 1, column = 6)
@@ -167,12 +183,13 @@ class Frame_Up(tk.Frame):
             if (1 <= new_value and new_value <= 12):
                 #entry.configure(background="#98FB98")
                 entry.configure(background="white")
-
-
             else:
                 entry.configure(background="#FFBCC1")
 
-        except ValueError:load_sismic_Data
+        except ValueError:
+            entry.configure(background="#FFBCC1")
+            return True
+            
         return True
 
     def on_Validate_Year(self, entry_name, new_value):
